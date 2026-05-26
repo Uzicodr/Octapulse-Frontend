@@ -5,4 +5,5 @@ abstract class ApiConstants {
   static const String pastEvents = '/pastevents';
   static const String upcomingEvents = '/upcomingevents';
   static const String rankings = '/rankings';
+  static const String chat = '/chat';
 }

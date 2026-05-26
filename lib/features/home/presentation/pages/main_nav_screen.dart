@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../alarm/presentation/pages/alarm_page.dart';
+import '../../../chat/presentation/pages/chat_page.dart';
 import '../../../events/presentation/pages/events_page.dart';
 import '../../../fighter_logs/presentation/pages/fighter_logs_page.dart';
 import '../../../rankings/presentation/pages/rankings_page.dart';
@@ -17,6 +18,7 @@ class MainNavScreen extends ConsumerWidget {
     (icon: Icons.event_outlined, label: 'Events'),
     (icon: Icons.alarm_outlined, label: 'Alarm'),
     (icon: Icons.leaderboard_outlined, label: 'Rankings'),
+    (icon: Icons.chat_bubble_outline, label: 'Chat'),
   ];
 
   static const _pages = [
@@ -24,6 +26,7 @@ class MainNavScreen extends ConsumerWidget {
     EventsPage(),
     AlarmPage(),
     RankingsPage(),
+    ChatPage(),
   ];
 
   @override
@@ -50,11 +53,14 @@ class MainNavScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(
                 _tabs.length,
-                (i) => _NavItem(
-                  icon: _tabs[i].icon,
-                  label: _tabs[i].label,
-                  isSelected: index == i,
-                  onTap: () => ref.read(_navIndexProvider.notifier).state = i,
+                (i) => Expanded(
+                  child: _NavItem(
+                    icon: _tabs[i].icon,
+                    label: _tabs[i].label,
+                    isSelected: index == i,
+                    onTap: () =>
+                        ref.read(_navIndexProvider.notifier).state = i,
+                  ),
                 ),
               ),
             ),
@@ -84,7 +90,7 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -96,8 +102,10 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 color: isSelected ? AppColors.primary : AppColors.onSurfaceVariant,
               ),
