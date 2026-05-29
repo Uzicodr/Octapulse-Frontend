@@ -3,28 +3,47 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 class FighterAvatar extends StatelessWidget {
-  const FighterAvatar({super.key, required this.name, this.radius = 20});
+  const FighterAvatar({
+    super.key,
+    required this.name,
+    this.radius = 20,
+    this.borderColor,
+    this.borderWidth = 2,
+  });
 
   static const String _baseImageUrl =
       'https://ik.imagekit.io/ohgsl5bks/fighterimages';
 
   final String name;
   final double radius;
+  final Color? borderColor;
+  final double borderWidth;
 
   @override
   Widget build(BuildContext context) {
     final initial = _initialFor(name);
 
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: AppColors.primary.withValues(alpha: 0.3),
-      foregroundImage: NetworkImage(_imageUrlFor(name)),
-      onForegroundImageError: (_, __) {},
-      child: Text(
-        initial,
-        style: const TextStyle(
-          color: AppColors.primary,
-          fontWeight: FontWeight.w600,
+    return Container(
+      padding: borderColor == null
+          ? EdgeInsets.zero
+          : EdgeInsets.all(borderWidth),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: borderColor == null
+            ? null
+            : Border.all(color: borderColor!, width: borderWidth),
+      ),
+      child: CircleAvatar(
+        radius: radius,
+        backgroundColor: AppColors.primary.withValues(alpha: 0.3),
+        foregroundImage: NetworkImage(_imageUrlFor(name)),
+        onForegroundImageError: (_, __) {},
+        child: Text(
+          initial,
+          style: const TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

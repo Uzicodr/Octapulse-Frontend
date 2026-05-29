@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/event.dart';
 import '../providers/events_provider.dart';
+import 'event_detail_page.dart';
 
 class UpcomingEventsTab extends ConsumerWidget {
   const UpcomingEventsTab({super.key});
@@ -13,7 +14,8 @@ class UpcomingEventsTab extends ConsumerWidget {
     final asyncEvents = ref.watch(upcomingEventsProvider);
 
     return asyncEvents.when(
-      data: (events) => _EventsContent(events: events, icon: Icons.event_available),
+      data: (events) =>
+          _EventsContent(events: events, icon: Icons.event_available),
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, _) => Center(
         child: Padding(
@@ -54,7 +56,11 @@ class _EventsContent extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 64, color: AppColors.onSurfaceVariant.withOpacity(0.5)),
+            Icon(
+              icon,
+              size: 64,
+              color: AppColors.onSurfaceVariant.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
             Text(
               'Upcoming Events',
@@ -78,14 +84,21 @@ class _EventsContent extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => EventDetailPage(event: event)),
+            ),
             leading: CircleAvatar(
-              backgroundColor: AppColors.primary.withOpacity(0.3),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.3),
               child: Icon(icon, color: AppColors.primary),
             ),
             title: Text(event.name),
             subtitle: event.location != null
                 ? Text('${event.date} • ${event.location}')
                 : Text(event.date),
+            trailing: const Icon(
+              Icons.chevron_right,
+              color: AppColors.onSurfaceVariant,
+            ),
           ),
         );
       },

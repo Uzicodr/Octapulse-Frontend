@@ -37,7 +37,7 @@ class EventsRemoteDataSourceImpl implements EventsRemoteDataSource {
   Future<List<Event>> getUpcomingEvents() async {
     try {
       final response = await _dio.get(ApiConstants.upcomingEvents);
-      return EventModel.fromJsonList(response.data);
+      return EventModel.fromJsonList(response.data, isUpcoming: true);
     } on DioException catch (e) {
       print('=== DIO EXCEPTION (upcomingEvents) ===');
       print('Error Type: ${e.type}');
