@@ -168,7 +168,7 @@ class _SplashScreenState extends State<SplashScreen>
                           child: Text(
                             'OctaPulse',
                             style: TextStyle(
-                              fontFamily: 'MuseoModerno',
+                              fontFamily: 'Molot',
                               fontSize: 36,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 4,

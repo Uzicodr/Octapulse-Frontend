@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 abstract class AppTheme {
-  static const String _fontFamily = 'Molot';
+  static const String _fontFamily = 'MuseoModerno';
 
   static ThemeData get dark {
     return ThemeData(

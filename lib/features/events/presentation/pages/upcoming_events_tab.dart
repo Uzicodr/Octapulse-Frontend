@@ -88,8 +88,18 @@ class _EventsContent extends StatelessWidget {
               MaterialPageRoute(builder: (_) => EventDetailPage(event: event)),
             ),
             leading: CircleAvatar(
+              radius: 20,
               backgroundColor: AppColors.primary.withValues(alpha: 0.3),
-              child: Icon(icon, color: AppColors.primary),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/ufclogo.png',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.sports_mma, color: AppColors.primary),
+                ),
+              ),
             ),
             title: Text(event.name),
             subtitle: event.location != null

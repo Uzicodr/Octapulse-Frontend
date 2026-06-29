@@ -13,12 +13,12 @@ final _navIndexProvider = StateProvider<int>((ref) => 0);
 class MainNavScreen extends ConsumerWidget {
   const MainNavScreen({super.key});
 
-  static const _tabs = [
-    (icon: Icons.people_alt_outlined, label: 'Fighter Logs'),
-    (icon: Icons.event_outlined, label: 'Events'),
-    (icon: Icons.alarm_outlined, label: 'Alarm'),
-    (icon: Icons.leaderboard_outlined, label: 'Rankings'),
-    (icon: Icons.chat_bubble_outline, label: 'Chat'),
+  static const _labels = [
+    'Fighter Logs',
+    'Events',
+    'Alarm',
+    'Rankings',
+    'Chat',
   ];
 
   static const _pages = [
@@ -35,16 +35,11 @@ class MainNavScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: IndexedStack(
-        index: index,
-        children: _pages,
-      ),
+      body: IndexedStack(index: index, children: _pages),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: AppColors.surface,
-          border: Border(
-            top: BorderSide(color: AppColors.outline, width: 1),
-          ),
+          border: Border(top: BorderSide(color: AppColors.outline, width: 1)),
         ),
         child: SafeArea(
           child: Padding(
@@ -52,14 +47,13 @@ class MainNavScreen extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(
-                _tabs.length,
+                _labels.length,
                 (i) => Expanded(
                   child: _NavItem(
-                    icon: _tabs[i].icon,
-                    label: _tabs[i].label,
+                    icon: _buildIcon(i, index == i),
+                    label: _labels[i],
                     isSelected: index == i,
-                    onTap: () =>
-                        ref.read(_navIndexProvider.notifier).state = i,
+                    onTap: () => ref.read(_navIndexProvider.notifier).state = i,
                   ),
                 ),
               ),
@@ -68,6 +62,48 @@ class MainNavScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  static Widget _buildIcon(int index, bool isSelected) {
+    final color = isSelected ? AppColors.primary : AppColors.onSurfaceVariant;
+    switch (index) {
+      case 0:
+        return SizedBox(
+          width: 24,
+          height: 24,
+          child: Image.asset(
+            'assets/images/glove.png',
+            width: 24,
+            height: 24,
+            color: color,
+            colorBlendMode: BlendMode.srcIn,
+            errorBuilder: (context, error, stackTrace) =>
+                Icon(Icons.sports_mma, size: 24, color: color),
+          ),
+        );
+      case 1:
+        return Icon(Icons.event_outlined, size: 24, color: color);
+      case 2:
+        return Icon(Icons.alarm_outlined, size: 24, color: color);
+      case 3:
+        return SizedBox(
+          width: 24,
+          height: 24,
+          child: Image.asset(
+            'assets/images/belt.png',
+            width: 24,
+            height: 24,
+            color: color,
+            colorBlendMode: BlendMode.srcIn,
+            errorBuilder: (context, error, stackTrace) =>
+                Icon(Icons.sports_mma, size: 24, color: color),
+          ),
+        );
+      case 4:
+        return Icon(Icons.chat_bubble_outline, size: 24, color: color);
+      default:
+        return Icon(Icons.circle, size: 24, color: color);
+    }
   }
 }
 
@@ -79,7 +115,7 @@ class _NavItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final IconData icon;
+  final Widget icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -94,11 +130,7 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 24,
-              color: isSelected ? AppColors.primary : AppColors.onSurfaceVariant,
-            ),
+            icon,
             const SizedBox(height: 4),
             Text(
               label,
@@ -107,7 +139,9 @@ class _NavItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? AppColors.primary : AppColors.onSurfaceVariant,
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.onSurfaceVariant,
               ),
             ),
           ],
