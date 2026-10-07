@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../config/env.dart';
 import '../theme/app_colors.dart';
 
 class FighterAvatar extends StatelessWidget {
@@ -10,9 +11,6 @@ class FighterAvatar extends StatelessWidget {
     this.borderColor,
     this.borderWidth = 2,
   });
-
-  static const String _baseImageUrl =
-      'https://ik.imagekit.io/ohgsl5bks/fighterimages';
 
   final String name;
   final double radius;
@@ -50,7 +48,7 @@ class FighterAvatar extends StatelessWidget {
   }
 
   static String _imageUrlFor(String name) {
-    return '$_baseImageUrl/${_slugFor(name)}.png';
+    return Env.fighterImageUrl(_slugFor(name));
   }
 
   static String _slugFor(String name) {
