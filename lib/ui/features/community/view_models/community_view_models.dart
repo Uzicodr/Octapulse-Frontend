@@ -46,6 +46,13 @@ class UserProfileController extends FamilyAsyncNotifier<UserProfile, String> {
     try {
       await ref.read(socialRepositoryProvider).setFollowing(arg, follow);
       ref.invalidate(feedProvider);
+      // My own "Following" count and both users' follow lists are cached separately.
+      final myId = ref.read(authControllerProvider).valueOrNull?.userId;
+      if (myId != null) {
+        ref.invalidate(userProfileProvider(myId));
+        ref.invalidate(followListProvider((myId, FollowList.following)));
+      }
+      ref.invalidate(followListProvider((arg, FollowList.followers)));
     } catch (_) {
       state = AsyncData(current);
       rethrow;
