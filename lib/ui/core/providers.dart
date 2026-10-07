@@ -6,6 +6,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/events_repository.dart';
 import '../../data/repositories/fighters_repository.dart';
 import '../../data/repositories/fights_repository.dart';
+import '../../data/repositories/news_repository.dart';
 import '../../data/repositories/picks_repository.dart';
 import '../../data/repositories/rankings_repository.dart';
 import '../../data/repositories/social_repository.dart';
@@ -32,6 +33,7 @@ final fightersRepositoryProvider = Provider((ref) => FightersRepository(ref.watc
 final rankingsRepositoryProvider = Provider((ref) => RankingsRepository(ref.watch(apiClientProvider)));
 final picksRepositoryProvider = Provider((ref) => PicksRepository(ref.watch(apiClientProvider)));
 final socialRepositoryProvider = Provider((ref) => SocialRepository(ref.watch(apiClientProvider)));
+final newsRepositoryProvider = Provider((ref) => NewsRepository(ref.watch(apiClientProvider)));
 
 // Auth
 final authControllerProvider = AsyncNotifierProvider<AuthController, Session?>(AuthController.new);
