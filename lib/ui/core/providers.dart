@@ -11,6 +11,7 @@ import '../../data/repositories/picks_repository.dart';
 import '../../data/repositories/rankings_repository.dart';
 import '../../data/repositories/social_repository.dart';
 import '../../data/services/api_client.dart';
+import '../../data/services/push_service.dart';
 import '../../data/services/session_store.dart';
 
 // Services
@@ -34,6 +35,7 @@ final rankingsRepositoryProvider = Provider((ref) => RankingsRepository(ref.watc
 final picksRepositoryProvider = Provider((ref) => PicksRepository(ref.watch(apiClientProvider)));
 final socialRepositoryProvider = Provider((ref) => SocialRepository(ref.watch(apiClientProvider)));
 final newsRepositoryProvider = Provider((ref) => NewsRepository(ref.watch(apiClientProvider)));
+final pushServiceProvider = Provider((ref) => PushService(ref.watch(apiClientProvider)));
 
 // Auth
 final authControllerProvider = AsyncNotifierProvider<AuthController, Session?>(AuthController.new);
@@ -57,6 +59,8 @@ class AuthController extends AsyncNotifier<Session?> {
   }
 
   Future<void> logout({bool everywhere = false}) async {
+    // Before the session ends: the backend needs it to know whose device to forget.
+    await ref.read(pushServiceProvider).unregister();
     await _repo.logout(everywhere: everywhere);
     state = const AsyncData(null);
   }
