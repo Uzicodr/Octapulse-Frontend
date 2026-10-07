@@ -6,6 +6,8 @@ import '../../../../data/models/event.dart';
 import '../../../../data/models/fighter.dart';
 import '../../../../data/repositories/events_repository.dart';
 import '../../../core/providers.dart';
+import '../../news/views/news_tile.dart';
+import '../../news/view_models/news_view_models.dart';
 import '../../notifications/view_models/notifications_view_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/common.dart';
@@ -26,7 +28,10 @@ class HomeView extends ConsumerWidget {
       bottom: false,
       child: RefreshIndicator(
         color: AppColors.primary,
-        onRefresh: () => ref.refresh(homeProvider.future),
+        onRefresh: () {
+          ref.invalidate(latestNewsProvider);
+          return ref.refresh(homeProvider.future);
+        },
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
@@ -133,6 +138,7 @@ class HomeView extends ConsumerWidget {
           ),
         ),
       ],
+      const SliverToBoxAdapter(child: _LatestNews()),
       if (data.past.isNotEmpty) ...[
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
         SliverToBoxAdapter(
@@ -152,6 +158,35 @@ class HomeView extends ConsumerWidget {
         ),
       ],
     ];
+  }
+}
+
+/// Newest headlines. Hidden while loading, on error and when empty, so news never breaks Home.
+class _LatestNews extends ConsumerWidget {
+  const _LatestNews();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(latestNewsProvider).valueOrNull ?? const [];
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 20),
+        SectionHeader('Latest News', action: 'See All', onAction: () => context.push('/news')),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              for (final item in items) ...[
+                NewsTile(item: item, showSummary: false),
+                if (item != items.last) const SizedBox(height: 10),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 
