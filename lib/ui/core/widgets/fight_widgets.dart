@@ -8,7 +8,8 @@ import 'common.dart';
 import 'country_flag.dart';
 import 'fighter_avatar.dart';
 
-/// Poster-style card for an event: both main-event fighters facing off.
+/// Event card: the main-event fighters face off in their red and blue corners, with the
+/// event name, venue and a View Event button underneath.
 class EventHeroCard extends StatelessWidget {
   const EventHeroCard({
     super.key,
@@ -27,117 +28,47 @@ class EventHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final headline = red != null && blue != null ? '${red!.lastName} vs. ${blue!.lastName}' : null;
-    final watermark = (red?.lastName ?? event.name).toUpperCase();
-
     return SizedBox(
       height: height,
       child: AppCard(
         padding: EdgeInsets.zero,
         radius: 26,
         onTap: onTap,
-        child: Stack(
-          fit: StackFit.expand,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(-0.7, -0.9),
-                  radius: 1.3,
-                  colors: [Color(0xAA7A1019), AppColors.surface],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 34,
-              left: 0,
-              right: 0,
-              child: Text(
-                watermark,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.clip,
-                style: TextStyle(
-                  fontSize: 84,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                  letterSpacing: -2,
-                  color: Colors.white.withValues(alpha: 0.05),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 44,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final half = constraints.maxWidth / 2;
-                  return Row(
-                    children: [
-                      FighterPortrait(
-                        fighter: red,
-                        height: height * 0.6,
-                        width: half,
-                        fadeEdge: AxisDirection.right,
-                      ),
-                      FighterPortrait(
-                        fighter: blue,
-                        height: height * 0.6,
-                        width: half,
-                        flip: true,
-                        fadeEdge: AxisDirection.left,
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.25, 0.62, 1],
-                  colors: [Colors.transparent, Color(0xD91E2127), AppColors.surface],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 16,
-              left: 16,
-              right: 16,
-              child: Row(
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  _DateTag(event.startsAt),
-                  const Spacer(),
-                  StatusChip.forEvent(event),
+                  _FaceOff(red: red, blue: blue),
+                  Positioned(
+                    top: 14,
+                    left: 14,
+                    right: 14,
+                    child: Row(
+                      children: [
+                        _DateTag(event.startsAt),
+                        const Spacer(),
+                        StatusChip.forEvent(event),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            Positioned(
-              left: 20,
-              right: 20,
-              bottom: 18,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     event.name,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, height: 1.15),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, height: 1.15),
                   ),
-                  if (headline != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      headline,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                    ),
-                  ],
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       const Icon(Icons.place_outlined, size: 15, color: AppColors.textMuted),
@@ -152,14 +83,202 @@ class EventHeroCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  PillButton(label: 'View Event', onPressed: onTap, height: 48),
+                  const SizedBox(height: 12),
+                  PillButton(label: 'View Event', onPressed: onTap, height: 44),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Two corners split by a slanted divider: red on the left, blue on the right, each fighter
+/// standing in their own corner with name and record, and a VS badge between them.
+class _FaceOff extends StatelessWidget {
+  const _FaceOff({required this.red, required this.blue});
+
+  final Fighter? red;
+  final Fighter? blue;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, box) {
+        final portrait = box.maxHeight * 0.92;
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            const Row(
+              children: [
+                Expanded(child: _CornerGlow(color: AppColors.primary, left: true)),
+                Expanded(child: _CornerGlow(color: AppColors.blueCorner, left: false)),
+              ],
+            ),
+            Center(
+              child: Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.skewX(-0.25),
+                child: Container(
+                  width: 2,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white.withValues(alpha: 0),
+                        Colors.white.withValues(alpha: 0.22),
+                        Colors.white.withValues(alpha: 0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(child: _CornerFighter(fighter: red, height: portrait)),
+                Expanded(child: _CornerFighter(fighter: blue, height: portrait, flip: true)),
+              ],
+            ),
+            // Fade the fighters' legs into the card so the names stay readable.
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.55, 1],
+                  colors: [Colors.transparent, AppColors.surface],
+                ),
+              ),
+            ),
+            Positioned(
+              left: 14,
+              right: 14,
+              bottom: 2,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(child: _CornerLabel(fighter: red, color: AppColors.primary)),
+                  const _VsBadge(),
+                  Expanded(child: _CornerLabel(fighter: blue, color: AppColors.blueCorner, alignEnd: true)),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CornerGlow extends StatelessWidget {
+  const _CornerGlow({required this.color, required this.left});
+
+  final Color color;
+  final bool left;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment(left ? -0.6 : 0.6, -0.2),
+          radius: 1.1,
+          colors: [color.withValues(alpha: 0.32), color.withValues(alpha: 0)],
+        ),
+      ),
+    );
+  }
+}
+
+class _CornerFighter extends StatelessWidget {
+  const _CornerFighter({required this.fighter, required this.height, this.flip = false});
+
+  final Fighter? fighter;
+  final double height;
+  final bool flip;
+
+  @override
+  Widget build(BuildContext context) {
+    final silhouette = Align(
+      alignment: Alignment.bottomCenter,
+      child: Icon(Icons.person_rounded, size: height * 0.8, color: Colors.white.withValues(alpha: 0.07)),
+    );
+    if (fighter == null) return silhouette;
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: FighterPortrait(fighter: fighter, height: height, flip: flip, fallback: silhouette),
+    );
+  }
+}
+
+class _CornerLabel extends StatelessWidget {
+  const _CornerLabel({required this.fighter, required this.color, this.alignEnd = false});
+
+  final Fighter? fighter;
+  final Color color;
+  final bool alignEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final f = fighter;
+    final record = f?.record;
+    final country = f?.country;
+    final bar = Container(
+      width: 3,
+      height: 30,
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+    );
+    final text = Flexible(
+      child: Column(
+        crossAxisAlignment: alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            (f?.lastName ?? 'TBA').toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.4, height: 1.1),
+          ),
+          if (record != null || country != null)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (country != null) ...[CountryFlag(country, size: 11), const SizedBox(width: 4)],
+                if (record != null)
+                  Text(record, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              ],
+            ),
+        ],
+      ),
+    );
+    return Row(
+      mainAxisAlignment: alignEnd ? MainAxisAlignment.end : MainAxisAlignment.start,
+      children: alignEnd ? [text, const SizedBox(width: 8), bar] : [bar, const SizedBox(width: 8), text],
+    );
+  }
+}
+
+class _VsBadge extends StatelessWidget {
+  const _VsBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 38,
+      height: 38,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.outline, width: 1.5),
+      ),
+      child: const Text('VS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
     );
   }
 }

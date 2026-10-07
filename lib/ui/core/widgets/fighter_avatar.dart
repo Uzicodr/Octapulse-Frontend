@@ -88,6 +88,7 @@ class FighterPortrait extends StatelessWidget {
     this.width,
     this.flip = false,
     this.fadeEdge,
+    this.fallback,
   });
 
   final Fighter? fighter;
@@ -95,6 +96,9 @@ class FighterPortrait extends StatelessWidget {
   final double? width;
   final bool flip;
   final AxisDirection? fadeEdge;
+
+  /// Shown when the photo can't be loaded; empty space by default.
+  final Widget? fallback;
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +110,7 @@ class FighterPortrait extends StatelessWidget {
       fit: width == null ? BoxFit.contain : BoxFit.cover,
       alignment: Alignment.topCenter,
       fadeInDuration: const Duration(milliseconds: 250),
-      errorWidget: (_, __, ___) => SizedBox(height: height, width: width),
+      errorWidget: (_, __, ___) => fallback ?? SizedBox(height: height, width: width),
       placeholder: (_, __) => SizedBox(height: height, width: width),
     );
     if (flip) image = Transform.flip(flipX: true, child: image);
