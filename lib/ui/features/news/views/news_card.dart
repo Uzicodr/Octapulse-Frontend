@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../data/models/fighter.dart';
 import '../../../../data/models/news.dart';
@@ -30,6 +31,8 @@ class NewsCard extends StatelessWidget {
           _Artwork(item: item, height: box.maxHeight),
           if (badge != null)
             Positioned(top: 12, left: 12, child: StatusChip(badge.$1, color: badge.$2, filled: true)),
+          if (item.imageUrl != null && item.imageCredit != null)
+            Positioned(right: 10, bottom: 10, left: 60, child: _PhotoCredit(credit: item.imageCredit!)),
         ],
       ),
     );
@@ -160,6 +163,47 @@ class _Artwork extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Small "Photo: X · CC BY 3.0" label on the image. Free licenses require the credit and,
+/// where given, a link to the photo's page.
+class _PhotoCredit extends StatelessWidget {
+  const _PhotoCredit({required this.credit});
+
+  final ImageCredit credit;
+
+  @override
+  Widget build(BuildContext context) {
+    final license = credit.license;
+    final text = license == null || license == 'Unsplash License'
+        ? 'Photo: ${credit.text}'
+        : 'Photo: ${credit.text} · $license';
+    final url = credit.url;
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: GestureDetector(
+        onTap: url == null ? null : () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.85),
+              fontSize: 10,
+              decoration: url == null ? null : TextDecoration.underline,
+              decorationColor: Colors.white.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
