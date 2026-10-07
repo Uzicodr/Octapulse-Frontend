@@ -117,6 +117,8 @@ class _SettingsMenu extends ConsumerWidget {
         switch (v) {
           case 'edit':
             showEditProfileSheet(context, me);
+          case 'notifications':
+            context.push('/settings/notifications');
           case 'logout':
             if (await confirmSheet(context, title: 'Sign out?', message: 'Your picks stay saved on your account.', action: 'Sign Out')) {
               await ref.read(authControllerProvider.notifier).logout();
@@ -135,6 +137,7 @@ class _SettingsMenu extends ConsumerWidget {
       },
       itemBuilder: (_) => const [
         PopupMenuItem(value: 'edit', child: Text('Edit profile')),
+        PopupMenuItem(value: 'notifications', child: Text('Notifications')),
         PopupMenuItem(value: 'logout', child: Text('Sign out')),
         PopupMenuItem(value: 'logout-all', child: Text('Sign out everywhere')),
       ],

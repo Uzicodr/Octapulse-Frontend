@@ -9,6 +9,7 @@ import 'features/events/views/event_detail_view.dart';
 import 'features/events/views/home_view.dart';
 import 'features/fights/views/fight_detail_view.dart';
 import 'features/news/views/news_view.dart';
+import 'features/notifications/views/notification_settings_view.dart';
 import 'features/notifications/views/notifications_view.dart';
 import 'features/profile/views/password_reset_view.dart';
 import 'features/search/views/fighter_detail_view.dart';
@@ -24,6 +25,7 @@ GoRouter createRouter() {
       GoRoute(path: '/home', builder: (_, __) => const MainShell()),
       GoRoute(path: '/search', builder: (_, __) => const SearchView()),
       GoRoute(path: '/notifications', builder: (_, __) => const NotificationsView()),
+      GoRoute(path: '/settings/notifications', builder: (_, __) => const NotificationSettingsView()),
       GoRoute(path: '/news', builder: (_, __) => const NewsView()),
       GoRoute(
         path: '/events/:window',

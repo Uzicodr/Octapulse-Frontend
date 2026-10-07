@@ -302,6 +302,40 @@ class LeagueDetail {
       );
 }
 
+/// Which kinds of push the user wants. Everything is on until changed.
+class NotificationSettings {
+  const NotificationSettings({
+    this.live = true,
+    this.results = true,
+    this.news = true,
+    this.announcements = true,
+    this.reminders = true,
+  });
+
+  final bool live;
+  final bool results;
+  final bool news;
+  final bool announcements;
+  final bool reminders;
+
+  factory NotificationSettings.fromJson(Map<String, dynamic> json) => NotificationSettings(
+        live: json['live'] as bool? ?? true,
+        results: json['results'] as bool? ?? true,
+        news: json['news'] as bool? ?? true,
+        announcements: json['announcements'] as bool? ?? true,
+        reminders: json['reminders'] as bool? ?? true,
+      );
+
+  NotificationSettings copyWith({bool? live, bool? results, bool? news, bool? announcements, bool? reminders}) =>
+      NotificationSettings(
+        live: live ?? this.live,
+        results: results ?? this.results,
+        news: news ?? this.news,
+        announcements: announcements ?? this.announcements,
+        reminders: reminders ?? this.reminders,
+      );
+}
+
 class AppNotification {
   const AppNotification({
     required this.id,

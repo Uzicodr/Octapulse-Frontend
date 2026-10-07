@@ -84,6 +84,13 @@ class SocialRepository {
 
   Future<void> markAllRead() => _api.post<void>('/me/notifications/read-all');
 
+  Future<NotificationSettings> notificationSettings() async =>
+      NotificationSettings.fromJson(await _api.get<Map<String, dynamic>>('/me/notification-settings'));
+
+  /// Sends only the given switch; returns the full settings.
+  Future<NotificationSettings> updateNotificationSettings(Map<String, bool> change) async =>
+      NotificationSettings.fromJson(await _api.patch<Map<String, dynamic>>('/me/notification-settings', change));
+
   // Meta
   /// Newest data write across events, fights, fighters and rankings.
   Future<DateTime?> lastDataUpdate() async {
