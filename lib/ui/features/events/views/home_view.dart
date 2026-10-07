@@ -6,7 +6,7 @@ import '../../../../data/models/event.dart';
 import '../../../../data/models/fighter.dart';
 import '../../../../data/repositories/events_repository.dart';
 import '../../../core/providers.dart';
-import '../../news/views/news_tile.dart';
+import '../../news/views/news_card.dart';
 import '../../news/view_models/news_view_models.dart';
 import '../../notifications/view_models/notifications_view_model.dart';
 import '../../../core/theme/app_colors.dart';
@@ -62,6 +62,7 @@ class HomeView extends ConsumerWidget {
     final latest = data.latest;
 
     return [
+      SliverToBoxAdapter(child: _LatestNews(cardWidth: cardWidth)),
       SliverToBoxAdapter(
         child: SectionHeader(
           'Upcoming Events',
@@ -138,7 +139,6 @@ class HomeView extends ConsumerWidget {
           ),
         ),
       ],
-      const SliverToBoxAdapter(child: _LatestNews()),
       if (data.past.isNotEmpty) ...[
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
         SliverToBoxAdapter(
@@ -161,30 +161,40 @@ class HomeView extends ConsumerWidget {
   }
 }
 
-/// Newest headlines. Hidden while loading, on error and when empty, so news never breaks Home.
+/// Newest headlines as a swipeable row of big cards, first thing on Home.
+/// Hidden on error or when empty, so news never breaks the page.
 class _LatestNews extends ConsumerWidget {
-  const _LatestNews();
+  const _LatestNews({required this.cardWidth});
+
+  final double cardWidth;
+  static const _height = 318.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(latestNewsProvider).valueOrNull ?? const [];
-    if (items.isEmpty) return const SizedBox.shrink();
+    final news = ref.watch(latestNewsProvider);
+    final items = news.valueOrNull ?? const [];
+    if (!news.isLoading && items.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 20),
         SectionHeader('Latest News', action: 'See All', onAction: () => context.push('/news')),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              for (final item in items) ...[
-                NewsTile(item: item, showSummary: false),
-                if (item != items.last) const SizedBox(height: 10),
-              ],
-            ],
-          ),
+        SizedBox(
+          height: _height,
+          child: items.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Shimmer(child: SkeletonCard(height: _height, child: const SizedBox.expand())),
+                )
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (_, i) => SizedBox(width: cardWidth, child: NewsCard(item: items[i], fill: true)),
+                ),
         ),
+        const SizedBox(height: 20),
       ],
     );
   }

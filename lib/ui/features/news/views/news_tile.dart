@@ -18,6 +18,15 @@ Future<void> openStory(BuildContext context, NewsItem item) async {
   }
 }
 
+/// Badge label and colour for a story kind; null for plain news.
+(String, Color)? newsBadge(NewsKind kind) => switch (kind) {
+      NewsKind.announcement => ('ANNOUNCED', AppColors.primaryBright),
+      NewsKind.result => ('RESULT', AppColors.win),
+      NewsKind.injury => ('INJURY', AppColors.loss),
+      NewsKind.rumor => ('RUMOR', AppColors.textMuted),
+      NewsKind.news => null,
+    };
+
 /// One headline. Title and summary are shown exactly as the publisher wrote them.
 class NewsTile extends StatelessWidget {
   const NewsTile({super.key, required this.item, this.showSummary = true});
@@ -51,7 +60,7 @@ class NewsTile extends StatelessWidget {
                         style: const TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600),
                       ),
                     ),
-                    if (_badge(item.kind) case (final label, final color)) _KindBadge(label: label, color: color),
+                    if (newsBadge(item.kind) case (final label, final color)) _KindBadge(label: label, color: color),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -88,14 +97,6 @@ class NewsTile extends StatelessWidget {
       ),
     );
   }
-
-  static (String, Color)? _badge(NewsKind kind) => switch (kind) {
-        NewsKind.announcement => ('ANNOUNCED', AppColors.primaryBright),
-        NewsKind.result => ('RESULT', AppColors.win),
-        NewsKind.injury => ('INJURY', AppColors.loss),
-        NewsKind.rumor => ('RUMOR', AppColors.textMuted),
-        NewsKind.news => null,
-      };
 }
 
 class _Thumb extends StatelessWidget {

@@ -6,7 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../view_models/news_view_models.dart';
-import 'news_tile.dart';
+import 'news_card.dart';
 
 /// Every headline, newest first, with kind filters and endless scroll.
 class NewsView extends ConsumerWidget {
@@ -62,7 +62,7 @@ class NewsView extends ConsumerWidget {
               onRefresh: () => ref.refresh(newsFeedProvider(kind).future),
               child: AsyncBody<NewsFeed>(
                 value: feed,
-                skeleton: const SkeletonList(item: SkeletonTile(), count: 7),
+                skeleton: const SkeletonList(item: SkeletonCard(height: 318, child: SizedBox.expand()), count: 3, spacing: 14),
                 onRetry: () => ref.invalidate(newsFeedProvider(kind)),
                 data: (data) => data.items.isEmpty
                     ? ListView(
@@ -83,9 +83,9 @@ class NewsView extends ConsumerWidget {
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                           itemCount: data.items.length + (data.hasMore ? 1 : 0),
-                          separatorBuilder: (_, __) => const SizedBox(height: 10),
+                          separatorBuilder: (_, __) => const SizedBox(height: 14),
                           itemBuilder: (_, i) => i < data.items.length
-                              ? NewsTile(item: data.items[i])
+                              ? NewsCard(item: data.items[i])
                               : const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 16),
                                   child: Center(child: CircularProgressIndicator(strokeWidth: 2)),

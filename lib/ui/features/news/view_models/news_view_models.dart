@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../data/models/news.dart';
 import '../../../core/providers.dart';
 
-/// The few newest stories shown on Home.
+/// The newest stories, shown as cards at the top of Home.
 final latestNewsProvider = FutureProvider<List<NewsItem>>((ref) async {
-  return (await ref.watch(newsRepositoryProvider).list(limit: 3)).items;
+  return (await ref.watch(newsRepositoryProvider).list(limit: 6)).items;
 });
 
 /// Stories that name one fighter, for the fighter page.
