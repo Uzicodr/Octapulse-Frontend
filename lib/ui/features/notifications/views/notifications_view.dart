@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../data/models/social.dart';
 import '../../../core/theme/app_colors.dart';
@@ -20,6 +21,11 @@ class NotificationsView extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Notifications'),
         actions: [
+          IconButton(
+            tooltip: 'Notification settings',
+            icon: const Icon(Icons.tune_rounded),
+            onPressed: () => context.push('/settings/notifications'),
+          ),
           if (hasUnread)
             TextButton(
               onPressed: () => ref.read(notificationsProvider.notifier).markAllRead(),
@@ -44,7 +50,7 @@ class NotificationsView extends ConsumerWidget {
                     EmptyState(
                       icon: Icons.notifications_none_rounded,
                       title: "You're all caught up",
-                      message: 'Event reminders, bookings and results for fighters you follow land here.',
+                      message: 'Live events, results, bookings and news for fighters you follow land here.',
                     ),
                   ],
                 )
@@ -56,8 +62,13 @@ class NotificationsView extends ConsumerWidget {
                     notification: items[i],
                     onTap: () {
                       ref.read(notificationsProvider.notifier).markRead(items[i]);
+                      final url = items[i].data['url'] as String?;
                       final route = routeFor(items[i]);
-                      if (route != null) context.push(route);
+                      if (items[i].type == 'fighter_news' && url != null) {
+                        launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                      } else if (route != null) {
+                        context.push(route);
+                      }
                     },
                   ),
                 ),
@@ -67,12 +78,18 @@ class NotificationsView extends ConsumerWidget {
   }
 
   /// Where a tap should go, based on `type` and `data`.
-  static String? routeFor(AppNotification n) {
-    final fightId = n.data['fightId'] as String?;
-    final eventId = n.data['eventId'] as String?;
-    return switch (n.type) {
+  static String? routeFor(AppNotification n) => routeForData(n.type, n.data);
+
+  /// Same as [routeFor] for a push payload, whose data values are all strings.
+  static String? routeForData(String type, Map<String, dynamic> data) {
+    final fightId = data['fightId'] as String?;
+    final eventId = data['eventId'] as String?;
+    final fighterSlug = data['fighterSlug'] as String?;
+    return switch (type) {
+      'fighter_news' when fighterSlug != null => '/fighter/$fighterSlug',
+      'fighter_news' => '/news',
       'fight_booked' || 'fight_result' when fightId != null => '/fight/$fightId',
-      'event_reminder' || 'event_settled' when eventId != null => '/event/$eventId',
+      'event_reminder' || 'event_settled' || 'event_live' when eventId != null => '/event/$eventId',
       _ when fightId != null => '/fight/$fightId',
       _ when eventId != null => '/event/$eventId',
       _ => null,
@@ -94,6 +111,8 @@ class _NotificationTile extends StatelessWidget {
       'fight_booked' => (Icons.event_available_rounded, AppColors.blueCorner),
       'fight_result' => (Icons.sports_mma_rounded, AppColors.primaryBright),
       'event_settled' => (Icons.emoji_events_rounded, AppColors.win),
+      'event_live' => (Icons.sensors_rounded, AppColors.primary),
+      'fighter_news' => (Icons.newspaper_rounded, AppColors.textPrimary),
       _ => (Icons.notifications_rounded, AppColors.textSecondary),
     };
     return AppCard(
