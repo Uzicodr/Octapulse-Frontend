@@ -116,6 +116,8 @@ class _Thumb extends StatelessWidget {
           width: _size,
           height: _size,
           fit: BoxFit.cover,
+          // Faces sit in the upper part of most photos; a centred square crop cuts them off.
+          alignment: const Alignment(0, -0.6),
           errorWidget: (_, __, ___) => _SourceMark(item: item, size: _size),
         ),
       );

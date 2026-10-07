@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -129,7 +131,7 @@ class _Artwork extends StatelessWidget {
         if (image != null)
           CachedNetworkImage(
             imageUrl: image,
-            fit: BoxFit.cover,
+            imageBuilder: (_, provider) => NewsPhoto(image: provider),
             errorWidget: (_, __, ___) => const SizedBox.shrink(),
           )
         else if (fighters.length == 2)
@@ -205,6 +207,80 @@ class _PhotoCredit extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Fits a story photo into the wide card without cutting off faces.
+///
+/// Landscape photos fill the box, cropped slightly towards the top where faces usually are.
+/// Portrait photos (most fighter photos from Wikipedia) would lose the face to a fill crop, so they
+/// are shown whole, centred over a blurred, darkened copy of themselves.
+class NewsPhoto extends StatefulWidget {
+  const NewsPhoto({super.key, required this.image});
+
+  final ImageProvider image;
+
+  @override
+  State<NewsPhoto> createState() => _NewsPhotoState();
+}
+
+class _NewsPhotoState extends State<NewsPhoto> {
+  ImageStream? _stream;
+  late final ImageStreamListener _listener = ImageStreamListener(_onImage);
+  double? _aspect;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _resolve();
+  }
+
+  @override
+  void didUpdateWidget(NewsPhoto old) {
+    super.didUpdateWidget(old);
+    if (old.image != widget.image) _resolve();
+  }
+
+  void _resolve() {
+    final stream = widget.image.resolve(createLocalImageConfiguration(context));
+    if (stream.key == _stream?.key) return;
+    _stream?.removeListener(_listener);
+    _stream = stream..addListener(_listener);
+  }
+
+  void _onImage(ImageInfo info, bool _) {
+    final aspect = info.image.width / info.image.height;
+    info.dispose();
+    if (mounted && aspect != _aspect) setState(() => _aspect = aspect);
+  }
+
+  @override
+  void dispose() {
+    _stream?.removeListener(_listener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (_, box) {
+      final aspect = _aspect;
+      final boxAspect = box.maxWidth / box.maxHeight;
+      // Fill when cropping keeps most of the height; a 4:3 photo in a 16:9 box still shows ~75%.
+      if (aspect == null || aspect >= boxAspect * 0.7) {
+        return Image(image: widget.image, fit: BoxFit.cover, alignment: const Alignment(0, -0.4));
+      }
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Image(image: widget.image, fit: BoxFit.cover),
+          ),
+          ColoredBox(color: Colors.black.withValues(alpha: 0.35)),
+          Image(image: widget.image, fit: BoxFit.contain),
+        ],
+      );
+    });
   }
 }
 
