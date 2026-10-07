@@ -1,10 +1,11 @@
 abstract class Env {
-  /// Backend base URL. Defaults to localhost so a physical device can reach the
-  /// local backend through `adb reverse tcp:8080 tcp:8080`.
-  /// Override with `--dart-define=API_BASE_URL=https://...`.
+  /// Backend base URL. Defaults to the Render deployment.
+  /// For a local backend, run with
+  /// `--dart-define=API_BASE_URL=http://localhost:8080` and
+  /// `adb reverse tcp:8080 tcp:8080` on a physical device.
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
+    defaultValue: 'https://octapulse-backend.onrender.com',
   );
 
   static const fighterImageBaseUrl =
