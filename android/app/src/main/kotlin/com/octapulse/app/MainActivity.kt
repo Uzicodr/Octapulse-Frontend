@@ -1,4 +1,4 @@
-package com.example.octapulsev2
+package com.octapulse.app
 
 import io.flutter.embedding.android.FlutterActivity
 
