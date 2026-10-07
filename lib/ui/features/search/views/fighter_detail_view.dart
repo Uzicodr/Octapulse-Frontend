@@ -13,6 +13,8 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/country_flag.dart';
 import '../../../core/widgets/fighter_avatar.dart';
 import '../../../core/widgets/skeleton.dart';
+import '../../news/view_models/news_view_models.dart';
+import '../../news/views/news_tile.dart';
 import '../../rankings/views/rankings_view.dart';
 
 final fighterDetailProvider = FutureProvider.family<Fighter, String>(
@@ -140,6 +142,7 @@ class FighterDetailView extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   _FollowButton(fighter: fighter),
+                  _FighterNews(slug: fighter.slug),
                   const SizedBox(height: 28),
                   Text('Fight history', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 12),
@@ -330,6 +333,31 @@ class _FollowButton extends ConsumerWidget {
           }
         }
       },
+    );
+  }
+}
+
+/// Recent stories naming this fighter. Hidden unless there are some.
+class _FighterNews extends ConsumerWidget {
+  const _FighterNews({required this.slug});
+
+  final String slug;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final items = ref.watch(fighterNewsProvider(slug)).valueOrNull ?? const [];
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 28),
+        Text('Latest news', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        for (final item in items) ...[
+          NewsTile(item: item, showSummary: false),
+          if (item != items.last) const SizedBox(height: 8),
+        ],
+      ],
     );
   }
 }
