@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:octapulsev2/data/models/news.dart';
@@ -44,5 +46,35 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.textContaining('ESPN · 3h ago'), findsOneWidget);
     expect(find.text('ANNOUNCED'), findsNothing);
+  });
+
+  Future<ImageProvider> png(WidgetTester tester, int width, int height) async {
+    final bytes = await tester.runAsync(() async {
+      final image = await createTestImage(width: width, height: height);
+      return (await image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
+    });
+    return MemoryImage(bytes!);
+  }
+
+  Future<void> pumpPhoto(WidgetTester tester, ImageProvider image) async {
+    await tester.pumpWidget(host(NewsPhoto(image: image), width: 320, height: 190));
+    // Decoding happens off the test clock.
+    await tester.runAsync(() => precacheImage(image, tester.element(find.byType(NewsPhoto))));
+    await tester.pump();
+  }
+
+  testWidgets('portrait photo is shown whole over a blurred copy', (tester) async {
+    await pumpPhoto(tester, await png(tester, 300, 450));
+    expect(find.byType(ImageFiltered), findsOneWidget);
+    final whole = tester.widgetList<Image>(find.byType(Image)).last;
+    expect(whole.fit, BoxFit.contain);
+  });
+
+  testWidgets('landscape photo fills the box, cropped towards the top', (tester) async {
+    await pumpPhoto(tester, await png(tester, 800, 450));
+    expect(find.byType(ImageFiltered), findsNothing);
+    final image = tester.widget<Image>(find.byType(Image));
+    expect(image.fit, BoxFit.cover);
+    expect(image.alignment, const Alignment(0, -0.4));
   });
 }
